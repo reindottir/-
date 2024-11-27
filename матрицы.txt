@@ -1,0 +1,1085 @@
+using System;
+using System.ComponentModel.Design;
+using System.Security.Cryptography;
+
+class Matrix_Work
+{
+    public float[,] name_of_matrix;
+    private int x;
+    private int y;
+
+    public void Matrix_Creat(int _x, int _y)
+    {
+
+        {
+            x = _x;
+            y = _y;
+            Console.WriteLine("\n создать нулевую матрицу или запонлить ее ");
+            Console.WriteLine("1. заполнить");
+            Console.WriteLine("2. нулевую");
+            string choice = Console.ReadLine(); // Считываем ввод пользователя
+
+            switch (choice)
+            {
+                case "1":
+                    {
+                        EnterMatrix(x, y);
+                    }
+                    break;
+
+                case "2":
+                    {
+                        ZeroMatrix(x, y);
+                    }
+                    break;
+
+                default:
+                    Console.WriteLine("Неверный ввод. Пожалуйста, выберите корректный пункт меню.");
+                    break;
+            }
+
+        }
+    }
+
+    public void IdentityMatrix(int x)
+    {
+        name_of_matrix = new float[x, x];
+        for (int i = 0; i < x; i++)      // Идем по строкам
+        {
+            for (int j = 0; j < x; j++)  // Идем по столбцам
+            {
+                name_of_matrix[i, j] = (i == j) ? 1 : 0;
+            }
+        }
+    }
+
+    public void ZeroMatrix(int x, int y)
+    {
+        name_of_matrix = new float[x, y];
+        for (int i = 0; i < x; i++)      // Идем по строкам
+        {
+            for (int j = 0; j < y; j++)  // Идем по столбцам
+            {
+                name_of_matrix[i, j] = 0;
+            }
+        }
+    }
+
+    public void EnterMatrix(int x, int y)
+    {
+        Console.WriteLine("Вводите значения массивов");
+        name_of_matrix = new float[x, y];
+        for (int i = 0; i < x; i++)      // Идем по строкам
+        {
+            for (int j = 0; j < y; j++)  // Идем по столбцам
+            {
+                name_of_matrix[i, j] = float.Parse(Console.ReadLine());
+            }
+        }
+    }
+
+    public bool CheckRazm(Matrix_Work mat1)
+    {
+        if ((mat1.name_of_matrix.GetLength(0) == this.name_of_matrix.GetLength(0)) && (mat1.name_of_matrix.GetLength(1) == this.name_of_matrix.GetLength(1)))
+            return true;
+        else
+            return false;
+
+    }
+    public bool CheckRazmforMultiplication(Matrix_Work mat1)
+    {
+        if (this.name_of_matrix.GetLength(1) == mat1.name_of_matrix.GetLength(0))
+            return true;
+        else
+            return false;
+
+    }
+
+    public Matrix_Work MatrixAddition(Matrix_Work mat1)
+    {
+        if (CheckRazm(mat1))
+        {
+            Matrix_Work resultMatrix = new Matrix_Work();
+
+            resultMatrix.ZeroMatrix(x, y);
+
+            for (int i = 0; i < x; i++)
+            {
+                for (int j = 0; j < y; j++)
+                {
+                    resultMatrix.name_of_matrix[i, j] = mat1.name_of_matrix[i, j] + this.name_of_matrix[i, j];
+                }
+            }
+            return resultMatrix;
+        }
+        else
+        {
+            Console.WriteLine(" Размерности не совпадают");
+            return null;
+        }
+    }
+
+    public Matrix_Work MatrixDeduction(Matrix_Work mat1)
+    {
+        if (CheckRazm(mat1))
+        {
+            Matrix_Work resultMatrix = new Matrix_Work();
+
+            resultMatrix.ZeroMatrix(x, y);
+
+            for (int i = 0; i < x; i++)
+            {
+                for (int j = 0; j < y; j++)
+                {
+                    resultMatrix.name_of_matrix[i, j] = this.name_of_matrix[i, j] - mat1.name_of_matrix[i, j];
+                }
+            }
+            return resultMatrix;
+        }
+        else
+        {
+            Console.WriteLine(" Размерности не совпадают");
+            return null;
+        }
+    }
+
+    public Matrix_Work MatrixMultiplication(Matrix_Work mat1)
+    {
+        if (CheckRazmforMultiplication(mat1))
+        {
+            Matrix_Work resultMatrix = new Matrix_Work();
+            int x1 = this.name_of_matrix.GetLength(0);
+            int y2 = mat1.name_of_matrix.GetLength(1);
+            int xy = this.name_of_matrix.GetLength(1); // Общая размерность для перемножения
+            resultMatrix.ZeroMatrix(y2, x1);
+
+            for (int i = 0; i < x1; i++)
+            {
+                for (int j = 0; j < y2; j++)
+                {
+                    for (int k = 0; k < xy; k++)
+                    {
+                        resultMatrix.name_of_matrix[i, j] += this.name_of_matrix[i, k] * mat1.name_of_matrix[k, j];
+                    }
+                }
+            }
+            return resultMatrix;
+        }
+        else
+        {
+            Console.WriteLine(" Размерности не совпадают");
+            return null;
+        }
+    }
+
+    public Matrix_Work MatrixDivideByNumber(int number)
+    {
+        if (number == 0)
+            return null;
+        else
+        {
+            Matrix_Work resultMatrix = new Matrix_Work();
+            int x1 = this.name_of_matrix.GetLength(0);
+            int y2 = this.name_of_matrix.GetLength(1);
+            resultMatrix.ZeroMatrix(x1, y2);
+
+            for (int i = 0; i < x1; i++)
+            {
+                for (int j = 0; j < y2; j++)
+                {
+                    resultMatrix.name_of_matrix[i, j] += this.name_of_matrix[i, j] / number;
+                }
+            }
+
+            return resultMatrix;
+        }
+
+    }
+
+
+    public Matrix_Work MatrixMultiplicationToOrForNumber(int number)
+    {
+        Matrix_Work resultMatrix = new Matrix_Work();
+        int x1 = this.name_of_matrix.GetLength(0);
+        int y2 = this.name_of_matrix.GetLength(1);
+        resultMatrix.ZeroMatrix(x1, y2);
+
+        for (int i = 0; i < x1; i++)
+        {
+            for (int j = 0; j < y2; j++)
+            {
+                resultMatrix.name_of_matrix[i, j] = this.name_of_matrix[i, j] * number;
+            }
+        }
+
+        return resultMatrix;
+
+    }
+
+    public Matrix_Work Copy()
+    {
+        Matrix_Work copy = new Matrix_Work();
+        copy.ZeroMatrix(this.name_of_matrix.GetLength(0), this.name_of_matrix.GetLength(1));
+        for (int i = 0; i < this.name_of_matrix.GetLength(0); i++)
+        {
+            for (int j = 0; j < this.name_of_matrix.GetLength(1); j++)
+            {
+                copy.name_of_matrix[i, j] = this.name_of_matrix[i, j];
+            }
+        }
+        return copy;
+    }
+
+    public Matrix_Work InverseMatrix() // обратная матрицаы
+    {
+        int xx = this.name_of_matrix.GetLength(0);
+
+        Matrix_Work result = new Matrix_Work();
+        result.IdentityMatrix(xx);
+        Matrix_Work copy = this.Copy();
+
+        for (int i = 0; i < xx; i++)
+        {
+            float diagElement = copy.name_of_matrix[i, i];
+
+            // Нормализация строки
+            for (int j = 0; j < xx; j++)
+            {
+                copy.name_of_matrix[i, j] /= diagElement;
+                result.name_of_matrix[i, j] /= diagElement;
+            }
+
+            // Обнуление остальных элементов столбца i
+            for (int k = 0; k < xx; k++)
+            {
+                if (k == i) continue;
+
+                float factor = copy.name_of_matrix[k, i];
+                for (int j = 0; j < xx; j++)
+                {
+                    copy.name_of_matrix[k, j] -= factor * copy.name_of_matrix[i, j];
+                    result.name_of_matrix[k, j] -= factor * result.name_of_matrix[i, j];
+                }
+            }
+
+        }
+
+        return result;
+    }
+
+    public Matrix_Work MatrixTranspose() // транспонированная матрица
+    {
+        int x_ = this.name_of_matrix.GetLength(0);
+        int y_ = this.name_of_matrix.GetLength(1);
+        Matrix_Work transposed = new Matrix_Work();
+        transposed.ZeroMatrix(y_, x_);
+
+        for (int i = 0; i < x_; i++)
+        {
+            for (int j = 0; j < y_; j++)
+            {
+                transposed.name_of_matrix[j, i] = this.name_of_matrix[i, j];
+            }
+        }
+
+        return transposed;
+    }
+
+    public Matrix_Work MatrixPower(int power) // степень матрица ъуъ
+    {
+
+        if (power < 0)
+        {
+            Console.WriteLine("Степень должна быть неотрицательной. Для отрицательных степеней используйте обратную матрицу.");
+            return null;
+        }
+
+        int size = this.name_of_matrix.GetLength(0);
+        Matrix_Work result = new Matrix_Work();
+        result.IdentityMatrix(size); // Начинаем с единичной матрицы
+
+        Matrix_Work baseMatrix = this.Copy();
+
+        for (int i = 0; i < power; i++)
+        {
+            result = result.MatrixMultiplication(baseMatrix);
+        }
+
+        return result;
+    }
+
+
+    public void printMatrix()
+    {
+        for (int i = 0; i < name_of_matrix.GetLength(0); i++)
+        {
+            for (int j = 0; j < name_of_matrix.GetLength(1); j++)
+            {
+                Console.Write(name_of_matrix[i, j] + " ");
+            }
+            Console.WriteLine();
+        }
+        Console.WriteLine();
+    }
+
+    public bool MatrixCompare(Matrix_Work mat1)
+    {
+        // Проверяем, совпадают ли размеры матриц
+        if (this.name_of_matrix.GetLength(0) != mat1.name_of_matrix.GetLength(0) || this.name_of_matrix.GetLength(1) != mat1.name_of_matrix.GetLength(1))
+        {
+            Console.WriteLine("размеры матриц разные, они не равны");
+            return false; // Размеры матриц разные, они не равны
+        }
+
+        // Сравниваем соответствующие элементы
+        for (int i = 0; i < this.name_of_matrix.GetLength(0); i++) // Идем по строкам
+        {
+            for (int j = 0; j < this.name_of_matrix.GetLength(1); j++) // Идем по столбцам
+            {
+                if (this.name_of_matrix[i, j] != mat1.name_of_matrix[i, j])
+                {
+                    Console.WriteLine("элементы матрицы не совпадают, они разные");
+                    return false; // Найдено несовпадение
+
+                }
+            }
+        }
+
+        return true; // Все элементы совпадают
+    }
+
+    public bool IsSquare()
+    {
+        return this.name_of_matrix.GetLength(0) == this.name_of_matrix.GetLength(1);
+    }
+
+    public bool IsDiagonal() // диагоналка
+    {
+        if (!IsSquare()) return false;
+
+        int size = this.name_of_matrix.GetLength(0);
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (i != j && this.name_of_matrix[i, j] != 0)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public bool IsZeroMatrix() // нулевая ли 
+    {
+        for (int i = 0; i < this.name_of_matrix.GetLength(0); i++)
+        {
+            for (int j = 0; j < this.name_of_matrix.GetLength(1); j++)
+            {
+                if (this.name_of_matrix[i, j] != 0)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public bool IsIdentityMatrix() //  является ли единичной
+    {
+        if (!IsSquare()) return false;
+
+        int size = this.name_of_matrix.GetLength(0);
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (i == j && this.name_of_matrix[i, j] != 1)
+                    return false;
+                if (i != j && this.name_of_matrix[i, j] != 0)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public bool IsSymmetric() // является ли симметричной
+    {
+        if (!IsSquare()) return false;
+
+        int size = this.name_of_matrix.GetLength(0);
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (this.name_of_matrix[i, j] != this.name_of_matrix[j, i])
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public bool IsUpperTriangular() // вверхтреуголка
+    {
+        if (!IsSquare()) return false;
+
+        int size = this.name_of_matrix.GetLength(0);
+        for (int i = 1; i < size; i++) // начинаем с i=1, так как в первой строке нет элементов ниже диагонали
+        {
+            for (int j = 0; j < i; j++)
+            {
+                if (this.name_of_matrix[i, j] != 0)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public bool IsLowerTriangular() // низтреуголка
+    {
+        if (!IsSquare()) return false;
+
+        int size = this.name_of_matrix.GetLength(0);
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = i + 1; j < size; j++) // начинаем с j=i+1, так как на диагонали элементы допустимы
+            {
+                if (this.name_of_matrix[i, j] != 0)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+
+}
+
+
+class Program
+{
+    static void Main()
+    {
+        while (true) // Бесконечный цикл для работы меню
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. сложение матриц");
+            Console.WriteLine("2. вычитание матриц");
+            Console.WriteLine("3. умножение матриц ");
+            Console.WriteLine("4. умножение матрицы на число");
+            Console.WriteLine("5. деление матриц");
+            Console.WriteLine("6. деление матрицы на число");
+            Console.WriteLine("7. сравнение на равенство неравенство");
+            Console.WriteLine("8. транспонировать матрицу");
+            Console.WriteLine("9. возведение матрицы в степень");
+            Console.WriteLine("10. определение типа матрицы");
+            Console.Write("Выберите опцию: ");
+
+            string choice = Console.ReadLine(); // Считываем ввод пользователя
+
+            switch (choice)
+            {
+                case "1":
+                    while (true)
+                    {
+                        Console.WriteLine("\nВведите размерность первой матрицы через энтер:");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat1 = new Matrix_Work();
+                        mat1.Matrix_Creat(x1, y1);
+                        Console.WriteLine("\nВведите размерность второй матрицы через энтер:");
+
+                        int x2 = int.Parse(Console.ReadLine());
+                        int y2 = int.Parse(Console.ReadLine());
+                        Matrix_Work mat2 = new Matrix_Work();
+                        mat2.Matrix_Creat(x2, y2);
+                        if (mat1.MatrixAddition(mat2) == null)
+                        {
+                            Console.WriteLine(" ВВодите снова или выходите?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine();
+                            (mat1.MatrixAddition(mat2)).printMatrix();
+
+                            Console.WriteLine(" посчитать снова или выйти?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+
+                    }
+                    break;
+
+                case "2":
+                    while (true)
+                    {
+                        Console.WriteLine("\nВведите размерность первой матрицы через энтер:");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat1 = new Matrix_Work();
+                        mat1.Matrix_Creat(x1, y1);
+                        Console.WriteLine("\nВведите размерность второй матрицы через энтер:");
+
+                        int x2 = int.Parse(Console.ReadLine());
+                        int y2 = int.Parse(Console.ReadLine());
+                        Matrix_Work mat2 = new Matrix_Work();
+                        mat2.Matrix_Creat(x2, y2);
+                        if (mat1.MatrixDeduction(mat2) == null)
+                        {
+                            Console.WriteLine(" ВВодите снова или выходите?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine();
+                            (mat1.MatrixDeduction(mat2)).printMatrix();
+
+                            Console.WriteLine(" посчитать снова или выйти?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+
+                    }
+                    break;
+
+                case "3":
+                    while (true)
+                    {
+                        Console.WriteLine("\nВведите размерность первой матрицы через энтер:");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat1 = new Matrix_Work();
+                        mat1.Matrix_Creat(x1, y1);
+                        Console.WriteLine();
+                        mat1.printMatrix();
+                        Console.WriteLine("\nВведите размерность второй матрицы через энтер:");
+
+                        int x2 = int.Parse(Console.ReadLine());
+                        int y2 = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat2 = new Matrix_Work();
+                        mat2.Matrix_Creat(x2, y2);
+                        Console.WriteLine();
+                        mat2.printMatrix();
+
+                        if (mat1.MatrixMultiplication(mat2) == null)
+                        {
+                            Console.WriteLine(" ВВодите снова или выходите?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine();
+                            (mat1.MatrixMultiplication(mat2)).printMatrix();
+
+                            Console.WriteLine(" посчитать снова или выйти?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+
+                    }
+
+                    break;
+
+                case "4":
+                    while (true)
+                    {
+                        Console.WriteLine("\nВведите размерность матрицы :");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat1 = new Matrix_Work();
+                        mat1.Matrix_Creat(x1, y1);
+                        Console.WriteLine();
+                        mat1.printMatrix();
+                        Console.WriteLine("\nВведите чило на которое вы умножаете:");
+
+                        int xx = int.Parse(Console.ReadLine());
+                        Console.WriteLine();
+
+                        (mat1.MatrixMultiplicationToOrForNumber(xx)).printMatrix();
+
+                        Console.WriteLine(" посчитать снова или выйти?");
+                        Console.WriteLine("1. Снова");
+                        Console.WriteLine("2. Выход");
+                        choice = Console.ReadLine();
+                        if (choice == "1")
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+
+                    }
+                    break;
+
+                case "6":
+                    while (true)
+                    {
+                        Console.WriteLine("\nВведите размерность матрицы :");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat1 = new Matrix_Work();
+                        mat1.Matrix_Creat(x1, y1);
+                        Console.WriteLine();
+                        mat1.printMatrix();
+                        Console.WriteLine("\nВведите чило на которое вы делите:");
+
+                        int xx = int.Parse(Console.ReadLine());
+                        Console.WriteLine();
+                        if (mat1.MatrixDivideByNumber(xx) != null)
+                        {
+                            (mat1.MatrixDivideByNumber(xx)).printMatrix();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Делить на нуль нихя");
+                            Console.WriteLine(" ВВодите снова или выходите?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        Console.WriteLine(" посчитать снова или выйти?");
+                        Console.WriteLine("1. Снова");
+                        Console.WriteLine("2. Выход");
+                        choice = Console.ReadLine();
+                        if (choice == "1")
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+
+                    }
+                    break;
+
+                case "5":
+                    while (true)
+                    {
+                        Console.WriteLine("\nВведите размерность матрицы :");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+                        if (x1 != y1)
+                        {
+                            Console.WriteLine("ваша матрица не квадратная, переделывайте");
+                            Console.WriteLine(" посчитать снова или выйти?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Matrix_Work mat1 = new Matrix_Work();
+                            mat1.Matrix_Creat(x1, y1);
+                            Console.WriteLine("\nВведите размерность второй матрицы :");
+                            int x2 = int.Parse(Console.ReadLine());
+                            int y2 = int.Parse(Console.ReadLine());
+                            if (x2 != y2 || x1 != x2)
+                            {
+                                Console.WriteLine("ваша матрица не квадратная либо матрицы имеют разную размерность, переделывайте");
+                                Console.WriteLine(" посчитать снова или выйти?");
+                                Console.WriteLine("1. Снова");
+                                Console.WriteLine("2. Выход");
+                                choice = Console.ReadLine();
+                                if (choice == "1")
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                Matrix_Work mat2 = new Matrix_Work();
+                                mat2.Matrix_Creat(x1, y1);
+
+                                Matrix_Work mat_obrat = new Matrix_Work();
+
+                                mat_obrat = mat2.InverseMatrix();
+
+                                mat1.MatrixMultiplication(mat_obrat).printMatrix();
+                            }
+
+                        }
+                        Console.WriteLine(" посчитать снова или выйти?");
+                        Console.WriteLine("1. Снова");
+                        Console.WriteLine("2. Выход");
+                        choice = Console.ReadLine();
+                        if (choice == "1")
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+                    }
+                    break;
+
+                case "7":
+                    while (true)
+                    {
+                        Console.WriteLine("\nВведите размерность первой матрицы через энтер:");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat1 = new Matrix_Work();
+                        mat1.Matrix_Creat(x1, y1);
+                        Console.WriteLine("\nВведите размерность второй матрицы через энтер:");
+
+                        int x2 = int.Parse(Console.ReadLine());
+                        int y2 = int.Parse(Console.ReadLine());
+                        Matrix_Work mat2 = new Matrix_Work();
+                        mat2.Matrix_Creat(x2, y2);
+                        if (mat1.MatrixCompare(mat2) == false)
+                        {
+                            Console.WriteLine(" ВВодите снова или выходите?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("матрицы равны");
+                            Console.WriteLine(" посчитать снова или выйти?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+
+                    }
+                    break;
+
+
+                case "8":
+                    while (true)
+                    {
+                        Console.WriteLine("\nВведите размерность матрицы через энтер:");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat1 = new Matrix_Work();
+                        mat1.Matrix_Creat(x1, y1);
+                        Console.WriteLine("\nВаша изначальная матрица:");
+                        mat1.printMatrix();
+                        Console.WriteLine("\nТранспонированная матрица:");
+                        mat1.MatrixTranspose().printMatrix();
+
+                        Console.WriteLine(" посчитать снова или выйти?");
+                        Console.WriteLine("1. Снова");
+                        Console.WriteLine("2. Выход");
+                        choice = Console.ReadLine();
+                        if (choice == "1")
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+
+                    }
+
+                    break;
+                case "9":
+                    while (true)
+                    {
+                        Console.WriteLine("\nВведите размерность матрицы через энтер:");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+
+                        if (x1 != y1)
+                        {
+                            Console.WriteLine("Возведение в степень возможно только для квадратных матриц.");
+                            Console.WriteLine(" посчитать снова или выйти?");
+                            Console.WriteLine("1. Снова");
+                            Console.WriteLine("2. Выход");
+                            choice = Console.ReadLine();
+                            if (choice == "1")
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        Console.WriteLine("\nВВедите степень:");
+                        int power = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat1 = new Matrix_Work();
+                        mat1.Matrix_Creat(x1, y1);
+                        Console.WriteLine("\nВаша изначальная матрица:");
+                        mat1.printMatrix();
+                        Console.WriteLine("\nМатрица в степени:");
+                        mat1.MatrixPower(power).printMatrix();
+
+                        Console.WriteLine(" посчитать снова или выйти?");
+                        Console.WriteLine("1. Снова");
+                        Console.WriteLine("2. Выход");
+                        choice = Console.ReadLine();
+                        if (choice == "1")
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+
+                    }
+
+                    break;
+
+                case "10":
+                    {
+                        Console.WriteLine("\nВведите размерность первой матрицы через энтер:");
+                        int x1 = int.Parse(Console.ReadLine());
+                        int y1 = int.Parse(Console.ReadLine());
+
+                        Matrix_Work mat1 = new Matrix_Work();
+                        mat1.Matrix_Creat(x1, y1);
+                        bool kk = true;
+                        while (kk)
+                        {
+                            int k = 0;
+                            if (k == 1)
+                            {
+                                break;
+                            }
+                            Console.WriteLine("\nЯвляется ли матрица:");
+                            Console.WriteLine("1. квадратной");
+                            Console.WriteLine("2. диагональной");
+                            Console.WriteLine("3. нулевой ");
+                            Console.WriteLine("4. единичной");
+                            Console.WriteLine("5. симметричной");
+                            Console.WriteLine("6. верхне треугольной");
+                            Console.WriteLine("7. нижне треугольной");
+                            Console.WriteLine("\n8. выйти обратно");
+
+                            string help_choice = Console.ReadLine();// Считываем ввод пользователя   
+
+                            switch (help_choice)
+                            {
+                                case "1":
+                                    {
+                                        if (mat1.IsSquare())
+                                        {
+                                            Console.WriteLine(" Матрица является квадратной ");
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(" Матрица не является квадратной ");
+                                            break;
+                                        }
+                                    }
+                                    break;
+
+                                case "2":
+                                    {
+                                        if (mat1.IsDiagonal())
+                                        {
+                                            Console.WriteLine(" Матрица является диагональной ");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(" Матрица не является диагональной ");
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                case "3":
+                                    {
+                                        if (mat1.IsZeroMatrix())
+                                        {
+                                            Console.WriteLine(" Матрица является нулевой ");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(" Матрица не является нулевой ");
+                                            break;
+                                        }
+                                    }
+                                    break;
+
+                                case "4":
+                                    {
+                                        if (mat1.IsIdentityMatrix())
+                                        {
+                                            Console.WriteLine(" Матрица является единичной ");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(" Матрица не является единичной ");
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                case "5":
+                                    {
+                                        if (mat1.IsSymmetric())
+                                        {
+                                            Console.WriteLine(" Матрица является симметричной ");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(" Матрица не является симметричной ");
+                                            break;
+                                        }
+                                    }
+                                    break;
+
+                                case "6":
+                                    {
+                                        if (mat1.IsUpperTriangular())
+                                        {
+                                            Console.WriteLine(" Матрица верх. треугольной ");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(" Матрица не является верх. треугольной ");
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                case "7":
+                                    {
+                                        if (mat1.IsLowerTriangular())
+                                        {
+                                            Console.WriteLine(" Матрица низ. треугольной ");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(" Матрица не является низ. треугольной ");
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                case "8":
+                                    {
+                                        Console.WriteLine("Возврат в главное меню...");
+                                        kk = false;
+                                    }
+                                    break;
+                            }
+                        }
+
+                        break;
+                    }
+
+                default:
+                    Console.WriteLine("Неверный ввод. Пожалуйста, выберите корректный пункт меню.");
+                    break;
+            }
+        }
+
+    }
+
+}
